@@ -21,7 +21,12 @@
 (defvar myPackages
   '(better-defaults                 ;; Set up some better Emacs defaults
     elpy                            ;; Emacs Lisp Python Environment
-    material-theme                  ;; Theme
+    dracula-theme                   ;; Theme
+    dockerfile-mode                 ;; Dockerfile mode
+    groovy-mode                     ;; Groovy mode
+    terraform-mode                  ;; Terraform mode
+    terraform-doc                   ;; Terraform docs
+    auto-complete                   ;; Autocomplete
     )
   )
 
@@ -37,7 +42,7 @@
 ;; Basic Customization
 ;; ===================================
 (setq inhibit-startup-message t)    ;; Hide the startup message
-(load-theme 'material t)            ;; Load material theme
+(load-theme 'dracula t)            ;; Load material theme
 
 ;; ====================================
 ;; Development Setup
@@ -46,6 +51,22 @@
 ;; Enable elpy
 (elpy-enable)
 
+;; Dockerfile mode
+(require 'dockerfile-mode)
+
+;; Backup file handling
+(setq backup-directory-alist `(("." . "~/.saves")))
+
+;; Terraform mode enabling
+(require 'terraform-mode)
+(add-to-list 'auto-mode-alist '("\\.tf\\'" . terraform-mode))
+(add-to-list 'auto-mode-alist '("\\.hcl\\'" . terraform-mode))
+(add-hook 'terraform-mode-hook #'terraform-format-on-save-mode)
+
+
+;; turn off tabs
+(setq-default indent-tabs-mode nil)
+
 ;; User-Defined init.el ends here
 
 (custom-set-variables
@@ -53,10 +74,22 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (material-theme better-defaults))))
+ '(custom-safe-themes
+   '("dcdd1471fde79899ae47152d090e3551b889edf4b46f00df36d653adc2bf550d" default))
+ '(package-selected-packages
+   '(auto-complete dracula-theme material-theme better-defaults)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+;; dirty fix for having AC everywhere
+(define-globalized-minor-mode real-global-auto-complete-mode
+  auto-complete-mode (lambda ()
+                       (if (not (minibufferp (current-buffer)))
+                         (auto-complete-mode 1))
+                       ))
+(real-global-auto-complete-mode t)
